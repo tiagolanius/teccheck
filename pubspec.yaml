@@ -1,7 +1,7 @@
 name: teccheck
 description: Checagem técnica na casa do cliente para técnicos de telecom.
 publish_to: none
-version: 2.0.0+2
+version: 2.1.0+3
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
@@ -17,6 +17,7 @@ dependencies:
   url_launcher: ^6.3.0
   pdf: ^3.11.0
   printing: ^5.13.0
+  shared_preferences: ^2.3.0
 
 dev_dependencies:
   flutter_test:

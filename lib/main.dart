@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     TecCheckNative.requestPermissions().catchError((_) => false).whenComplete(s.refreshNet);
+    s.loadServer();
   }
 
   @override

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'net/icmp.dart';
 import 'net/net_info.dart';
 import 'net/scanner.dart';
+import 'net/speed_server.dart';
 import 'net/speed_test.dart';
 import 'net/wifi.dart';
 import 'report/pdf_report.dart';
@@ -28,6 +29,19 @@ class VisitState extends ChangeNotifier {
   }
 
   // ---------- Velocidade ----------
+  SpeedServer server = SpeedServer.cloudflare;
+
+  Future<void> loadServer() async {
+    server = await ServerStore.load();
+    notifyListeners();
+  }
+
+  Future<void> selectServer(SpeedServer s) async {
+    server = s;
+    notifyListeners();
+    await ServerStore.save(s);
+  }
+
   bool speedRunning = false;
   String speedPhase = '';
   double speedLive = 0;
@@ -43,7 +57,7 @@ class VisitState extends ChangeNotifier {
     speedPhase = 'Preparando';
     speed = null;
     notifyListeners();
-    final t = _tester = SpeedTester();
+    final t = _tester = SpeedTester(server);
     try {
       speed = await t.run((phase, live, progress, partial) {
         speedPhase = phase;

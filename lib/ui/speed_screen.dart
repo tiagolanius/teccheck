@@ -3,6 +3,7 @@ import 'package:teccheck_native/teccheck_native.dart';
 
 import '../main.dart';
 import '../state.dart';
+import 'server_picker.dart';
 import 'web_screen.dart';
 import 'widgets.dart';
 
@@ -27,6 +28,8 @@ class SpeedScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              _ServerCard(s),
+              const SizedBox(height: 4),
               Center(
                 child: Gauge(
                   value: live,
@@ -104,11 +107,43 @@ class SpeedScreen extends StatelessWidget {
                 NumField('Plano contratado (Mbps)', controller: s.plano, onChanged: (_) => s.touch()),
               ]),
               const SizedBox(height: 10),
-              const Text('Teste nativo via servidores Cloudflare: 6 conexões paralelas, 10 s por fase.',
+              const Text('6 conexões paralelas, 10 s por fase. IP público e operadora identificados pela Cloudflare.',
                   style: TextStyle(color: Tec.muted, fontSize: 11)),
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _ServerCard extends StatelessWidget {
+  final VisitState s;
+  const _ServerCard(this.s);
+
+  @override
+  Widget build(BuildContext context) {
+    final sv = s.server;
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: s.speedRunning ? null : () => go(context, const ServerPickerScreen()),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(children: [
+            Icon(sv.isCloudflare ? Icons.cloud : Icons.dns, color: Tec.cyan),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Text('Servidor de teste', style: TextStyle(color: Tec.muted, fontSize: 11)),
+                Text(sv.title, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(sv.subtitle, style: const TextStyle(color: Tec.muted, fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+              ]),
+            ),
+            Text('Trocar', style: TextStyle(color: s.speedRunning ? Tec.muted : Tec.cyan, fontWeight: FontWeight.bold)),
+          ]),
+        ),
       ),
     );
   }
