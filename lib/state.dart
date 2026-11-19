@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import 'company.dart';
 import 'net/icmp.dart';
 import 'net/net_info.dart';
 import 'net/scanner.dart';
@@ -15,6 +16,20 @@ import 'report/pdf_report.dart';
 class VisitState extends ChangeNotifier {
   VisitState._();
   static final VisitState I = VisitState._();
+
+  // ---------- Empresa ----------
+  Company company = const Company();
+
+  Future<void> loadCompany() async {
+    company = await Company.load();
+    notifyListeners();
+  }
+
+  Future<void> saveCompany(Company c) async {
+    company = c;
+    notifyListeners();
+    await c.save();
+  }
 
   // ---------- Rede ----------
   NetInfo net = const NetInfo();
@@ -276,6 +291,7 @@ class VisitState extends ChangeNotifier {
       hops: hops,
       wifi: wifiNets,
       signaturePng: sig,
+      company: company,
     );
     final bytes = await PdfReport.build(data);
     final now = DateTime.now();

@@ -3,6 +3,7 @@ import 'package:teccheck_native/teccheck_native.dart';
 
 import 'net/net_info.dart';
 import 'state.dart';
+import 'ui/company_screen.dart';
 import 'ui/ping_screen.dart';
 import 'ui/report_screen.dart';
 import 'ui/scan_screen.dart';
@@ -47,12 +48,22 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     TecCheckNative.requestPermissions().catchError((_) => false).whenComplete(s.refreshNet);
     s.loadServer();
+    s.loadCompany();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('TecCheck', style: TextStyle(fontWeight: FontWeight.bold))),
+      appBar: AppBar(
+        title: const Text('TecCheck', style: TextStyle(fontWeight: FontWeight.bold)),
+        actions: [
+          IconButton(
+            tooltip: 'Dados da empresa',
+            icon: const Icon(Icons.business),
+            onPressed: () => go(context, const CompanyScreen()),
+          ),
+        ],
+      ),
       body: ListenableBuilder(
         listenable: s,
         builder: (context, _) {

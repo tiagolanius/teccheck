@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../company.dart';
 import '../net/icmp.dart';
 import '../net/net_info.dart';
 import '../net/scanner.dart';
@@ -20,6 +21,7 @@ class ReportData {
   final List<Hop> hops;
   final List<WifiNet> wifi;
   final Uint8List? signaturePng;
+  final Company company;
 
   ReportData({
     required this.cliente,
@@ -39,6 +41,7 @@ class ReportData {
     required this.hops,
     required this.wifi,
     required this.signaturePng,
+    this.company = const Company(),
   });
 }
 
@@ -56,6 +59,54 @@ class PdfReport {
       }));
 
   static String n(double? v, [int d = 1]) => v == null ? '-' : v.toStringAsFixed(d).replaceAll('.', ',');
+
+  /// Cabeçalho: logo + dados da empresa em fundo branco, e a faixa com título e data.
+  static pw.Widget _header(Company c, String date) {
+    final hasCompany = !c.isEmpty;
+    final titleBar = pw.Container(
+      padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: pw.BoxDecoration(
+        color: _navy,
+        border: pw.Border(bottom: pw.BorderSide(color: _accent, width: 3)),
+      ),
+      child: pw.Row(children: [
+        pw.Expanded(
+          child: pw.Text(t('Relatório de Visita Técnica'),
+              style: pw.TextStyle(fontSize: hasCompany ? 15 : 19, color: PdfColors.white, fontWeight: pw.FontWeight.bold)),
+        ),
+        pw.Text(t(date), style: pw.TextStyle(fontSize: 10, color: PdfColor.fromInt(0xFFAAC8DC))),
+      ]),
+    );
+    if (!hasCompany) return pw.Padding(padding: const pw.EdgeInsets.only(bottom: 6), child: titleBar);
+
+    return pw.Column(children: [
+      pw.Padding(
+        padding: const pw.EdgeInsets.only(bottom: 8),
+        child: pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.center, children: [
+          if (c.logo != null)
+            pw.Container(
+              width: 110,
+              height: 60,
+              margin: const pw.EdgeInsets.only(right: 14),
+              alignment: pw.Alignment.centerLeft,
+              child: pw.Image(pw.MemoryImage(c.logo!), fit: pw.BoxFit.contain),
+            ),
+          pw.Expanded(
+            child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+              if (c.nome.isNotEmpty)
+                pw.Text(t(c.nome), style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: _navy)),
+              for (final l in c.contactLines)
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(top: 2),
+                  child: pw.Text(t(l), style: pw.TextStyle(fontSize: 8.5, color: _gray)),
+                ),
+            ]),
+          ),
+        ]),
+      ),
+      pw.Padding(padding: const pw.EdgeInsets.only(bottom: 6), child: titleBar),
+    ]);
+  }
 
   static Future<Uint8List> build(ReportData d) async {
     final doc = pw.Document(title: 'Relatório de visita técnica', author: 'TecCheck');
@@ -234,27 +285,16 @@ class PdfReport {
     doc.addPage(pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.fromLTRB(32, 28, 32, 28),
-      header: (ctx) => ctx.pageNumber == 1
-          ? pw.Container(
-              padding: const pw.EdgeInsets.all(14),
-              margin: const pw.EdgeInsets.only(bottom: 6),
-              decoration: pw.BoxDecoration(
-                color: _navy,
-                border: pw.Border(bottom: pw.BorderSide(color: _accent, width: 3)),
-              ),
-              child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
-                pw.Text(t('Relatório de Visita Técnica'),
-                    style: pw.TextStyle(fontSize: 19, color: PdfColors.white, fontWeight: pw.FontWeight.bold)),
-                pw.SizedBox(height: 3),
-                pw.Text(t(date), style: pw.TextStyle(fontSize: 10, color: PdfColor.fromInt(0xFFAAC8DC))),
-              ]),
-            )
-          : pw.SizedBox(),
-      footer: (ctx) => pw.Align(
-        alignment: pw.Alignment.centerRight,
-        child: pw.Text(t('TecCheck · página ${ctx.pageNumber} de ${ctx.pagesCount}'),
-            style: pw.TextStyle(fontSize: 8, color: _gray)),
-      ),
+      header: (ctx) => ctx.pageNumber == 1 ? _header(d.company, date) : pw.SizedBox(),
+      footer: (ctx) => pw.Row(children: [
+        pw.Expanded(
+          child: pw.Text(
+            t([d.company.nome, d.company.telefone].where((s) => s.isNotEmpty).join(' · ')),
+            style: pw.TextStyle(fontSize: 8, color: _gray),
+          ),
+        ),
+        pw.Text(t('página ${ctx.pageNumber} de ${ctx.pagesCount}'), style: pw.TextStyle(fontSize: 8, color: _gray)),
+      ]),
       build: (ctx) => body,
     ));
     return doc.save();

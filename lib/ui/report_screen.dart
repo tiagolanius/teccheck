@@ -3,7 +3,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 
+import '../main.dart';
 import '../state.dart';
+import 'company_screen.dart';
 import 'widgets.dart';
 
 class ReportScreen extends StatefulWidget {
@@ -52,6 +54,8 @@ class _ReportScreenState extends State<ReportScreen> {
       body: ListenableBuilder(
         listenable: s,
         builder: (context, _) => ListView(padding: const EdgeInsets.all(16), children: [
+          _CompanyCard(s),
+          const SizedBox(height: 12),
           SectionCard(title: 'Dados do atendimento', children: [
             _field('Cliente', s.cliente),
             _field('Contrato / código', s.contrato),
@@ -177,4 +181,46 @@ class _SigPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_SigPainter old) => true;
+}
+
+class _CompanyCard extends StatelessWidget {
+  final VisitState s;
+  const _CompanyCard(this.s);
+
+  @override
+  Widget build(BuildContext context) {
+    final c = s.company;
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => go(context, const CompanyScreen()),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(children: [
+            Container(
+              width: 64,
+              height: 64,
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+              child: c.logo == null
+                  ? const Icon(Icons.add_photo_alternate, color: Colors.black38)
+                  : Image.memory(c.logo!, fit: BoxFit.contain),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Text('Empresa no cabeçalho do PDF', style: TextStyle(color: Tec.muted, fontSize: 11)),
+                Text(c.nome.isEmpty ? 'Cadastrar empresa e logotipo' : c.nome,
+                    style: TextStyle(fontWeight: FontWeight.bold, color: c.nome.isEmpty ? Tec.cyan : Tec.text)),
+                if (c.contactLines.isNotEmpty)
+                  Text(c.contactLines.first, style: const TextStyle(color: Tec.muted, fontSize: 12), maxLines: 1),
+              ]),
+            ),
+            const Icon(Icons.edit, color: Tec.cyan, size: 20),
+          ]),
+        ),
+      ),
+    );
+  }
 }

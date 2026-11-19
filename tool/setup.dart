@@ -24,6 +24,8 @@ void main(List<String> args) {
         '<string>Usado para encontrar os aparelhos da rede do cliente e testar o roteador.</string>',
     'NSAppTransportSecurity': '<dict>\n\t\t<key>NSAllowsArbitraryLoads</key>\n\t\t<true/>\n'
         '\t\t<key>NSAllowsLocalNetworking</key>\n\t\t<true/>\n\t</dict>',
+    'NSPhotoLibraryUsageDescription':
+        '<string>Usado para escolher o logotipo da empresa que sai no relatório.</string>',
     'LSApplicationQueriesSchemes': '<array>\n\t\t<string>speedtest</string>\n\t</array>',
   };
   var added = 0;
