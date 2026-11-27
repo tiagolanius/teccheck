@@ -22,6 +22,7 @@ class ReportData {
   final List<WifiNet> wifi;
   final Uint8List? signaturePng;
   final Company company;
+  final String redeWifi;
 
   ReportData({
     required this.cliente,
@@ -42,6 +43,7 @@ class ReportData {
     required this.wifi,
     required this.signaturePng,
     this.company = const Company(),
+    this.redeWifi = '',
   });
 }
 
@@ -162,6 +164,7 @@ class PdfReport {
       kv('Nome', d.cliente),
       kv('Contrato / código', d.contrato),
       kv('Endereço', d.endereco),
+      kv('Rede Wi-Fi (SSID)', d.redeWifi.isNotEmpty ? d.redeWifi : (net.ssid ?? '')),
       kv('Plano contratado', d.planoMbps == null ? '' : '${n(d.planoMbps, 0)} Mbps'),
       kv('Técnico', d.tecnico),
 

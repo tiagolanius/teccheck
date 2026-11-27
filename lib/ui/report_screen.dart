@@ -60,6 +60,30 @@ class _ReportScreenState extends State<ReportScreen> {
             _field('Cliente', s.cliente),
             _field('Contrato / código', s.contrato),
             _field('Endereço', s.endereco),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: TextField(
+                controller: s.redeWifi,
+                decoration: InputDecoration(
+                  labelText: 'Rede Wi-Fi do cliente (SSID)',
+                  prefixIcon: const Icon(Icons.wifi, size: 20),
+                  suffixIcon: IconButton(
+                    tooltip: 'Usar a rede conectada agora',
+                    icon: const Icon(Icons.sync, color: Tec.cyan),
+                    onPressed: () async {
+                      await s.refreshNet();
+                      if (s.net.ssid != null) {
+                        s.redeWifi.text = s.net.ssid!;
+                      } else if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text('Nome da rede indisponível. Conecte no Wi-Fi e permita a Localização.'),
+                        ));
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Expanded(flex: 3, child: _field('Técnico', s.tecnico)),
               const SizedBox(width: 8),

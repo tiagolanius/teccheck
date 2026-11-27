@@ -37,6 +37,8 @@ class VisitState extends ChangeNotifier {
   Future<void> refreshNet() async {
     try {
       net = await NetInfo.read();
+      // Preenche o nome da rede do cliente com o SSID atual (se ainda não foi digitado).
+      if (redeWifi.text.isEmpty && net.ssid != null) redeWifi.text = net.ssid!;
     } catch (_) {
       net = const NetInfo();
     }
@@ -226,6 +228,7 @@ class VisitState extends ChangeNotifier {
   final cliente = TextEditingController();
   final contrato = TextEditingController();
   final endereco = TextEditingController();
+  final redeWifi = TextEditingController();
   final tecnico = TextEditingController();
   final plano = TextEditingController();
   final ooklaDown = TextEditingController();
@@ -277,6 +280,7 @@ class VisitState extends ChangeNotifier {
       cliente: cliente.text,
       contrato: contrato.text,
       endereco: endereco.text,
+      redeWifi: redeWifi.text.trim(),
       tecnico: tecnico.text,
       planoMbps: planoMbps,
       ooklaDown: ooklaDown.text,
